@@ -92,6 +92,11 @@ export function EntryForm({
   const [chosenDevice, setChosenDevice] = useState<string | null>(entry?.device_id ?? null)
   const [nota, setNota] = useState(entry?.nota_no ?? "")
   const [note, setNote] = useState(entry?.note ?? "")
+  // keterangan dilipat secara default supaya tombol "Next" di keyboard HP tidak mampir ke sini;
+  // terbuka otomatis saat mengedit entri yang sudah punya keterangan
+  const [metaOpen, setMetaOpen] = useState(Boolean(entry?.nota_no || entry?.note))
+  const [focusMeta, setFocusMeta] = useState(false)
+  const metaSummary = [nota.trim() && `#${nota.trim()}`, note.trim()].filter(Boolean).join(" · ")
   const [drawer, setDrawer] = useState<null | "unit" | "pl" | "jasa">(null)
 
   const itemById = useMemo(() => new Map(catalog.items.map((i) => [i.id, i])), [catalog.items])
@@ -449,23 +454,63 @@ export function EntryForm({
           )}
         </Panel>
 
-        {/* Keterangan */}
-        <Panel className="flex flex-col gap-3">
-          <p className="text-sm font-semibold">
-            Keterangan <span className="font-normal text-muted-foreground">(opsional)</span>
-          </p>
-          <div className="grid gap-1.5">
-            <Label htmlFor="nota" className="text-xs text-muted-foreground">
-              No. nota
-            </Label>
-            <Input id="nota" value={nota} onChange={(e) => setNota(e.target.value)} placeholder="mis. NT-0457" maxLength={60} />
-          </div>
-          <div className="grid gap-1.5">
-            <Label htmlFor="note" className="text-xs text-muted-foreground">
-              Customer / catatan
-            </Label>
-            <Input id="note" value={note} onChange={(e) => setNote(e.target.value)} placeholder="mis. Bu Sari" maxLength={500} />
-          </div>
+        {/* Keterangan (bisa dilipat) */}
+        <Panel className="flex flex-col gap-3 py-2">
+          <button
+            type="button"
+            aria-expanded={metaOpen}
+            aria-controls="entry-meta"
+            onClick={() => {
+              setMetaOpen((v) => !v)
+              setFocusMeta(!metaOpen)
+            }}
+            className="-mx-2 flex items-center gap-3 rounded-2xl px-2 py-2 text-left outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <span className="min-w-0 flex-1">
+              <span className="block text-sm font-semibold">
+                Keterangan <span className="font-normal text-muted-foreground">(opsional)</span>
+              </span>
+              {!metaOpen && (
+                <span className="block truncate text-xs text-muted-foreground">
+                  {metaSummary || "No. nota, customer / catatan"}
+                </span>
+              )}
+            </span>
+            <ChevronDownIcon
+              className={cn("size-4 shrink-0 text-muted-foreground transition-transform duration-200", metaOpen && "rotate-180")}
+            />
+          </button>
+          {metaOpen && (
+            <div id="entry-meta" className="flex flex-col gap-3 pb-2">
+              <div className="grid gap-1.5">
+                <Label htmlFor="nota" className="text-xs text-muted-foreground">
+                  No. nota
+                </Label>
+                <Input
+                  id="nota"
+                  value={nota}
+                  onChange={(e) => setNota(e.target.value)}
+                  placeholder="mis. NT-0457"
+                  maxLength={60}
+                  autoFocus={focusMeta}
+                  enterKeyHint="next"
+                />
+              </div>
+              <div className="grid gap-1.5">
+                <Label htmlFor="note" className="text-xs text-muted-foreground">
+                  Customer / catatan
+                </Label>
+                <Input
+                  id="note"
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  placeholder="mis. Bu Sari"
+                  maxLength={500}
+                  enterKeyHint="done"
+                />
+              </div>
+            </div>
+          )}
         </Panel>
       </main>
 
