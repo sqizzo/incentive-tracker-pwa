@@ -12,6 +12,7 @@ import {
 } from "lucide-react"
 
 import { IconBubble, Panel, Screen } from "@/components/app/bits"
+import { InstallAppButton } from "@/components/app/install-app-button"
 import { PageHeader } from "@/components/app/page-header"
 import { SignOutButton } from "@/components/app/sign-out-button"
 import { ThemeSwitcher } from "@/components/app/theme-switcher"
@@ -115,6 +116,8 @@ export default async function SettingsPage() {
           ))}
         </ul>
       </Panel>
+
+      <InstallAppButton />
 
       <Panel className="p-2">
         <ThemeSwitcher />

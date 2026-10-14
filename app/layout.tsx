@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next"
 import { Inter, Figtree } from "next/font/google"
 
 import "./globals.css"
+import { InstallCapture } from "@/components/app/install-capture"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/sonner"
 import { cn } from "@/lib/utils"
@@ -42,6 +43,7 @@ export default function RootLayout({
       <body className="min-h-dvh bg-muted/60 dark:bg-background">
         <ThemeProvider>
           {children}
+          <InstallCapture />
           <Toaster position="top-center" richColors closeButton />
         </ThemeProvider>
       </body>
