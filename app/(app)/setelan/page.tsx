@@ -1,6 +1,14 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import { ChevronRightIcon, GitCompareArrowsIcon, ReceiptTextIcon, TagsIcon, UserRoundCogIcon, WalletIcon } from "lucide-react"
+import {
+  ChevronRightIcon,
+  GitCompareArrowsIcon,
+  KeyRoundIcon,
+  ReceiptTextIcon,
+  TagsIcon,
+  UserRoundCogIcon,
+  WalletIcon,
+} from "lucide-react"
 
 import { IconBubble, Panel, Screen } from "@/components/app/bits"
 import { PageHeader } from "@/components/app/page-header"
@@ -13,7 +21,11 @@ import { formatRupiah, initials } from "@/lib/format"
 export const metadata: Metadata = { title: "Setelan" }
 
 export default async function SettingsPage() {
-  const [user, settings, meta] = await Promise.all([requireUser(), getSettings(), getRateMeta()])
+  const [user, settings, meta] = await Promise.all([
+    requireUser(),
+    getSettings(),
+    getRateMeta(),
+  ])
   const name = settings.display_name || user.email.split("@")[0]
 
   const items = [
@@ -23,6 +35,13 @@ export default async function SettingsPage() {
       tone: "sky" as const,
       title: "Profil & Target",
       desc: `Target penjualan ${formatRupiah(settings.default_target)}/hari`,
+    },
+    {
+      href: "/setelan/password",
+      icon: <KeyRoundIcon />,
+      tone: "muted" as const,
+      title: "Ganti Password",
+      desc: "Perbarui password akun ini",
     },
     {
       href: "/setelan/harga-jual",
@@ -60,10 +79,14 @@ export default async function SettingsPage() {
 
       <Panel className="flex items-center gap-3">
         <Avatar size="lg" className="size-12">
-          <AvatarFallback className="bg-primary/10 text-base font-semibold text-primary">{initials(name)}</AvatarFallback>
+          <AvatarFallback className="bg-primary/10 text-base font-semibold text-primary">
+            {initials(name)}
+          </AvatarFallback>
         </Avatar>
         <div className="min-w-0">
-          <p className="truncate font-heading text-base font-semibold">{name}</p>
+          <p className="truncate font-heading text-base font-semibold">
+            {name}
+          </p>
           <p className="truncate text-sm text-muted-foreground">{user.email}</p>
         </div>
       </Panel>
@@ -78,8 +101,12 @@ export default async function SettingsPage() {
               >
                 <IconBubble tone={it.tone}>{it.icon}</IconBubble>
                 <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-semibold">{it.title}</span>
-                  <span className="block truncate text-xs text-muted-foreground">{it.desc}</span>
+                  <span className="block text-sm font-semibold">
+                    {it.title}
+                  </span>
+                  <span className="block truncate text-xs text-muted-foreground">
+                    {it.desc}
+                  </span>
                 </span>
                 <ChevronRightIcon className="size-4 text-muted-foreground" />
               </Link>
