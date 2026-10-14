@@ -106,11 +106,26 @@ export function RecapSkeleton() {
     <Screen aria-busy aria-label="Memuat rekap">
       <HeaderSkeleton />
       <Skeleton className={cn("h-9 w-full rounded-full", ON_BG)} />
-      <div className="flex items-center justify-between">
-        <Skeleton className={cn("size-10 rounded-full", ON_BG)} />
-        <Skeleton className={cn("h-5 w-32", ON_BG)} />
-        <Skeleton className={cn("size-10 rounded-full", ON_BG)} />
-      </div>
+      <PeriodNavSkeleton />
+      <RecapBodySkeleton />
+    </Screen>
+  )
+}
+
+function PeriodNavSkeleton() {
+  return (
+    <div className="flex items-center justify-between">
+      <Skeleton className={cn("size-10 rounded-full", ON_BG)} />
+      <Skeleton className={cn("h-5 w-32", ON_BG)} />
+      <Skeleton className={cn("size-10 rounded-full", ON_BG)} />
+    </div>
+  )
+}
+
+/** Isi Rekap saja (dipakai saat ganti periode; header & navigasi tetap tampil). */
+export function RecapBodySkeleton() {
+  return (
+    <div className="flex flex-col gap-4" aria-busy aria-label="Memuat data periode">
       <Panel className="flex flex-col gap-4 p-5">
         <Skeleton className="h-4 w-20" />
         <Skeleton className="h-9 w-48" />
@@ -132,7 +147,7 @@ export function RecapSkeleton() {
           </Panel>
         ))}
       </div>
-    </Screen>
+    </div>
   )
 }
 
@@ -141,11 +156,16 @@ export function HistorySkeleton() {
   return (
     <Screen aria-busy aria-label="Memuat riwayat">
       <HeaderSkeleton />
-      <div className="flex items-center justify-between">
-        <Skeleton className={cn("size-10 rounded-full", ON_BG)} />
-        <Skeleton className={cn("h-5 w-32", ON_BG)} />
-        <Skeleton className={cn("size-10 rounded-full", ON_BG)} />
-      </div>
+      <PeriodNavSkeleton />
+      <HistoryBodySkeleton />
+    </Screen>
+  )
+}
+
+/** Isi Riwayat saja (dipakai saat ganti bulan). */
+export function HistoryBodySkeleton() {
+  return (
+    <div className="flex flex-col gap-4" aria-busy aria-label="Memuat data bulan">
       <Panel className="flex items-end justify-between">
         <div className="flex flex-col gap-2">
           <Skeleton className="h-3 w-24" />
@@ -155,7 +175,7 @@ export function HistorySkeleton() {
       </Panel>
       <Skeleton className={cn("h-4 w-40", ON_BG)} />
       <CardListSkeleton rows={4} />
-    </Screen>
+    </div>
   )
 }
 

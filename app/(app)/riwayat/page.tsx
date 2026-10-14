@@ -1,3 +1,4 @@
+import { Suspense } from "react"
 import type { Metadata } from "next"
 import { HistoryIcon } from "lucide-react"
 
@@ -5,6 +6,7 @@ import { Money, Panel, Screen } from "@/components/app/bits"
 import { EntryCard } from "@/components/app/entry-card"
 import { MonthSwitcher } from "@/components/app/month-switcher"
 import { PageHeader } from "@/components/app/page-header"
+import { HistoryBodySkeleton } from "@/components/app/skeletons"
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty"
 import { getEntriesInRange } from "@/lib/data"
 import { formatDateLong, isMonthKey, monthKey, monthRange, todayWIB } from "@/lib/date"
@@ -17,6 +19,20 @@ export default async function HistoryPage({ searchParams }: { searchParams: Prom
   const { m } = await searchParams
   const today = todayWIB()
   const month = isMonthKey(m) ? m : monthKey(today)
+
+  return (
+    <Screen>
+      <PageHeader title="Riwayat" />
+      <MonthSwitcher month={month} basePath="/riwayat" />
+      {/* key per bulan: saat ganti bulan, isi langsung berganti skeleton sementara header & navigasi tetap */}
+      <Suspense key={month} fallback={<HistoryBodySkeleton />}>
+        <HistoryBody month={month} today={today} />
+      </Suspense>
+    </Screen>
+  )
+}
+
+async function HistoryBody({ month, today }: { month: string; today: string }) {
   const { from, to } = monthRange(month)
   const entries = await getEntriesInRange(from, to)
 
@@ -35,10 +51,7 @@ export default async function HistoryPage({ searchParams }: { searchParams: Prom
   const incentive = entries.reduce((s, e) => s + e.total_incentive, 0)
 
   return (
-    <Screen>
-      <PageHeader title="Riwayat" />
-      <MonthSwitcher month={month} basePath="/riwayat" />
-
+    <>
       <Panel className="flex items-end justify-between gap-3">
         <div>
           <p className="text-xs text-muted-foreground">Total penjualan</p>
@@ -79,6 +92,6 @@ export default async function HistoryPage({ searchParams }: { searchParams: Prom
           </section>
         ))
       )}
-    </Screen>
+    </>
   )
 }

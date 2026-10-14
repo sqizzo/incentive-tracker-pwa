@@ -1,7 +1,6 @@
 import Link from "next/link"
 import {
   CalendarCheckIcon,
-  ChevronLeftIcon,
   ChevronRightIcon,
   ClipboardListIcon,
   FlagIcon,
@@ -13,6 +12,7 @@ import {
 import { IconBubble, Money, Panel, Screen } from "@/components/app/bits"
 import { EntryCard } from "@/components/app/entry-card"
 import { KuromiDecor } from "@/components/app/kuromi-decor"
+import { LinkPendingIcon, LinkPendingOverlay } from "@/components/app/link-pending"
 import { ProgressRing } from "@/components/app/progress-ring"
 import { TargetCelebration } from "@/components/app/target-celebration"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -155,7 +155,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
               render={<Link href={`/?d=${addDays(week[0], -7)}`} aria-label="Minggu sebelumnya" scroll={false} />}
               nativeButton={false}
             >
-              <ChevronLeftIcon />
+              <LinkPendingIcon icon="left" />
             </Button>
             <Button
               variant="outline"
@@ -164,7 +164,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
               render={<Link href={`/?d=${addDays(week[0], 7)}`} aria-label="Minggu berikutnya" scroll={false} />}
               nativeButton={false}
             >
-              <ChevronRightIcon />
+              <LinkPendingIcon icon="right" />
             </Button>
           </div>
         </div>
@@ -180,7 +180,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
                 scroll={false}
                 aria-current={active ? "date" : undefined}
                 className={cn(
-                  "flex flex-col items-center gap-1 rounded-full py-2 text-xs transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                  "relative flex flex-col items-center gap-1 rounded-full py-2 text-xs transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring",
                   active ? "bg-primary text-primary-foreground" : "hover:bg-muted"
                 )}
               >
@@ -197,6 +197,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
                     st === "tercapai" ? (active ? "bg-primary-foreground" : "bg-primary") : active ? "bg-primary-foreground/60" : "bg-muted-foreground/50"
                   )}
                 />
+                <LinkPendingOverlay />
               </Link>
             )
           })}

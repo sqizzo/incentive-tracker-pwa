@@ -1,6 +1,7 @@
 import Link from "next/link"
-import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react"
+import { ChevronRightIcon } from "lucide-react"
 
+import { LinkPendingIcon } from "@/components/app/link-pending"
 import { Button } from "@/components/ui/button"
 import { addMonths, formatMonth } from "@/lib/date"
 
@@ -17,7 +18,7 @@ export function MonthSwitcher({ month, basePath, maxMonth }: { month: string; ba
         render={<Link href={`${basePath}?m=${addMonths(month, -1)}`} aria-label="Bulan sebelumnya" scroll={false} />}
         nativeButton={false}
       >
-        <ChevronLeftIcon />
+        <LinkPendingIcon icon="left" />
       </Button>
       <p className="font-heading text-base font-semibold">{formatMonth(month)}</p>
       {nextDisabled ? (
@@ -32,7 +33,7 @@ export function MonthSwitcher({ month, basePath, maxMonth }: { month: string; ba
           render={<Link href={`${basePath}?m=${next}`} aria-label="Bulan berikutnya" scroll={false} />}
           nativeButton={false}
         >
-          <ChevronRightIcon />
+          <LinkPendingIcon icon="right" />
         </Button>
       )}
     </div>
