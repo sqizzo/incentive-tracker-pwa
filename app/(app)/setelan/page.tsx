@@ -8,6 +8,7 @@ import {
   TagsIcon,
   UserRoundCogIcon,
   WalletIcon,
+  Heart,
 } from "lucide-react"
 
 import { IconBubble, Panel, Screen } from "@/components/app/bits"
@@ -122,6 +123,15 @@ export default async function SettingsPage() {
       <Panel className="p-2">
         <SignOutButton />
       </Panel>
+
+      <p className="py-2 text-center text-sm text-muted-foreground">
+        Made with{" "}
+        <Heart
+          aria-label="love"
+          className="inline-block size-3.5 -translate-y-px fill-pink-500 align-middle text-pink-500"
+        />{" "}
+        by SQZ
+      </p>
     </Screen>
   )
 }

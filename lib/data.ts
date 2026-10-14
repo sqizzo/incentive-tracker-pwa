@@ -3,6 +3,8 @@ import "server-only"
 import { cache } from "react"
 import { redirect } from "next/navigation"
 
+import { addDays, todayWIB } from "./date"
+import { computeQuickPicks, type QuickPicks, type RecentEntry } from "./quick-picks"
 import { createClient, getUser } from "./supabase/server"
 import type {
   Catalog,
@@ -215,4 +217,17 @@ export async function getCategorySummary(from: string, to: string): Promise<Cate
   const { data, error } = await supabase.rpc("category_summary", { p_from: from, p_to: to })
   if (error) throw error
   return data as CategorySummary[]
+}
+
+/** Pilihan cepat di form input: dari 300 entri terakhir user dalam 90 hari. */
+export async function getQuickPicks(): Promise<QuickPicks> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from("service_entries")
+    .select("device_name, created_at, service_entry_items(kind, pl_price_id)")
+    .gte("service_date", addDays(todayWIB(), -90))
+    .order("created_at", { ascending: false })
+    .limit(300)
+  if (error) throw error
+  return computeQuickPicks(data as RecentEntry[])
 }
