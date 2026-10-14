@@ -26,15 +26,26 @@ const ENTRY_SELECT =
   "service_entry_items(id, kind, item_name, description, sale_amount, incentive_amount, category_id, category_name, pl_price_id, sort_order)"
 
 const PAGE = 1000
+/** Jumlah halaman yang diambil sekaligus (paralel) di putaran pertama. */
+const PARALLEL_PAGES = 2
 
-/** Ambil semua baris (PostgREST membatasi 1000 baris per request). */
-async function fetchAll<T>(query: (from: number, to: number) => PromiseLike<{ data: T[] | null; error: unknown }>) {
+type PageQuery<T> = (from: number, to: number) => PromiseLike<{ data: T[] | null; error: unknown }>
+
+/**
+ * Ambil semua baris. PostgREST membatasi 1000 baris per request, jadi beberapa halaman
+ * diminta PARALEL (bukan berurutan) supaya tabel ~1–2 ribu baris selesai dalam satu putaran jaringan.
+ */
+async function fetchAll<T>(query: PageQuery<T>) {
   const out: T[] = []
-  for (let from = 0; ; from += PAGE) {
-    const { data, error } = await query(from, from + PAGE - 1)
-    if (error) throw error
-    out.push(...(data ?? []))
-    if (!data || data.length < PAGE) return out
+  for (let start = 0; ; start += PAGE * PARALLEL_PAGES) {
+    const pages = await Promise.all(
+      Array.from({ length: PARALLEL_PAGES }, (_, i) => query(start + i * PAGE, start + (i + 1) * PAGE - 1))
+    )
+    for (const { data, error } of pages) {
+      if (error) throw error
+      out.push(...(data ?? []))
+      if (!data || data.length < PAGE) return out
+    }
   }
 }
 
@@ -50,19 +61,24 @@ export const requireUser = cache(async () => {
   return user
 })
 
-/** Pengaturan user; dibuat otomatis dengan nilai default saat pertama kali. */
+/**
+ * Pengaturan user; dibuat otomatis dengan nilai default saat pertama kali.
+ * Tidak perlu menunggu cek login dulu: RLS sudah membatasi ke baris milik user,
+ * dan kolom user_id default auth.uid(). Jadi bisa jalan paralel dengan query lain.
+ */
 export const getSettings = cache(async (): Promise<UserSettings> => {
-  const user = await requireUser()
   const supabase = await createClient()
-  const { data, error } = await supabase.from("user_settings").select("*").eq("user_id", user.id).maybeSingle()
+  const { data, error } = await supabase.from("user_settings").select("*").maybeSingle()
   if (error) throw error
   if (data) return data as UserSettings
 
-  const { data: created, error: insertError } = await supabase
-    .from("user_settings")
-    .upsert({ user_id: user.id }, { onConflict: "user_id" })
-    .select("*")
-    .single()
+  const { data: created, error: insertError } = await supabase.from("user_settings").insert({}).select("*").single()
+  if (insertError?.code === "23505") {
+    // dibuat bersamaan oleh request lain; ambil ulang
+    const { data: again, error: againError } = await supabase.from("user_settings").select("*").single()
+    if (againError) throw againError
+    return again as UserSettings
+  }
   if (insertError) throw insertError
   return created as UserSettings
 })

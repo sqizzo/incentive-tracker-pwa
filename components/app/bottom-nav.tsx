@@ -1,6 +1,6 @@
 "use client"
 
-import Link from "next/link"
+import Link, { useLinkStatus } from "next/link"
 import { usePathname } from "next/navigation"
 import { ChartColumnIcon, HouseIcon, ListIcon, PlusIcon, SettingsIcon, type LucideIcon } from "lucide-react"
 
@@ -41,7 +41,7 @@ export function BottomNav() {
             aria-label="Tambah servis"
             className="-mt-8 flex size-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg ring-4 ring-background transition-transform outline-none focus-visible:ring-ring active:scale-95"
           >
-            <PlusIcon className="size-7" strokeWidth={2.5} />
+            <FabIcon />
           </Link>
         </div>
         {RIGHT.map((tab) => (
@@ -63,8 +63,35 @@ function NavTab({ tab, active }: { tab: Tab; active: boolean }) {
         active && "font-semibold text-primary"
       )}
     >
-      <Icon className="size-5" strokeWidth={active ? 2.4 : 2} />
-      {tab.label}
+      <TabContent icon={Icon} label={tab.label} active={active} />
     </Link>
+  )
+}
+
+function FabIcon() {
+  const { pending } = useLinkStatus()
+  return (
+    <PlusIcon
+      className={cn("size-7 transition-transform duration-300", pending && "rotate-90 animate-pulse")}
+      strokeWidth={2.5}
+    />
+  )
+}
+
+/**
+ * Isi tab. useLinkStatus harus dipanggil di dalam <Link>: saat navigasi masih menunggu server
+ * (jaringan lambat / belum ter-prefetch), ikon berdenyut dan berwarna primary sebagai umpan balik.
+ * Animasi ditunda 120ms supaya tidak berkedip pada navigasi yang cepat.
+ */
+function TabContent({ icon: Icon, label, active }: { icon: LucideIcon; label: string; active: boolean }) {
+  const { pending } = useLinkStatus()
+  return (
+    <>
+      <Icon
+        className={cn("size-5", pending && "animate-pulse text-primary [animation-delay:120ms]")}
+        strokeWidth={active || pending ? 2.4 : 2}
+      />
+      <span className={cn(pending && "text-primary")}>{label}</span>
+    </>
   )
 }

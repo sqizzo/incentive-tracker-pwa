@@ -45,8 +45,10 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   const week = weekDays(selected)
   const month = monthRange(monthKey(selected))
 
-  const [user, settings] = await Promise.all([requireUser(), getSettings()])
-  const [monthDays, entries] = await Promise.all([
+  // semua query independen: satu putaran paralel
+  const [user, settings, monthDays, entries] = await Promise.all([
+    requireUser(),
+    getSettings(),
     getDailySummary(month.from < week[0] ? month.from : week[0], month.to > week[6] ? month.to : week[6]),
     getEntriesInRange(selected, selected),
   ])
