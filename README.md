@@ -6,7 +6,7 @@ Stack: Next.js 16 (App Router) · shadcn/ui (Base UI) · lucide · Supabase (Pos
 
 ## Fitur
 
-- **Beranda**: penjualan hari ini vs target (ring progres), insentif hari ini, jumlah unit, kalender mingguan, perayaan saat target tercapai.
+- **Beranda**: penjualan hari ini vs target (ring progres), insentif hari ini, jumlah unit, kalender mingguan, streak target, perayaan saat target tercapai.
 - **Input servis**: pilih unit, lalu tambahkan
   - item dari **price list penjualan**: harga terisi otomatis dan bisa diedit
   - **jasa lain** di luar price list: harga manual, insentif dari tabel tarif

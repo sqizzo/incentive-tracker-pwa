@@ -14,6 +14,7 @@ import { EntryCard } from "@/components/app/entry-card"
 import { KuromiDecor } from "@/components/app/kuromi-decor"
 import { LinkPendingIcon, LinkPendingOverlay } from "@/components/app/link-pending"
 import { ProgressRing } from "@/components/app/progress-ring"
+import { StreakBadge } from "@/components/app/streak-badge"
 import { TargetCelebration } from "@/components/app/target-celebration"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -35,7 +36,10 @@ import {
   weekDays,
 } from "@/lib/date"
 import { formatCompact, formatRupiah, initials, percent } from "@/lib/format"
-import { dayStatus, periodStats } from "@/lib/target"
+import { computeStreak, dayStatus, periodStats } from "@/lib/target"
+
+/** Rentang data untuk menghitung streak; streak lebih panjang ditampilkan sebagai "120+". */
+const STREAK_WINDOW_DAYS = 120
 import { cn } from "@/lib/utils"
 
 export default async function HomePage({ searchParams }: { searchParams: Promise<{ d?: string }> }) {
@@ -46,12 +50,15 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
   const month = monthRange(monthKey(selected))
 
   // semua query independen: satu putaran paralel
-  const [user, settings, monthDays, entries] = await Promise.all([
+  const [user, settings, monthDays, entries, streakDays] = await Promise.all([
     requireUser(),
     getSettings(),
     getDailySummary(month.from < week[0] ? month.from : week[0], month.to > week[6] ? month.to : week[6]),
     getEntriesInRange(selected, selected),
+    // streak selalu relatif terhadap hari ini, apa pun minggu yang sedang dilihat
+    getDailySummary(addDays(today, -(STREAK_WINDOW_DAYS - 1)), today),
   ])
+  const streak = computeStreak(streakDays, today)
 
   const byDay = new Map(monthDays.map((s) => [s.day, s]))
   const day = byDay.get(selected) ?? { day: selected, target: 0, is_off: false, is_custom: false, sales: 0, incentive: 0, unit_count: 0 }
@@ -146,7 +153,10 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       {/* Week strip */}
       <Panel>
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="font-heading text-base font-semibold">{formatMonth(monthKey(selected))}</h2>
+          <div className="flex items-center gap-2">
+            <h2 className="font-heading text-base font-semibold">{formatMonth(monthKey(selected))}</h2>
+            <StreakBadge streak={streak} />
+          </div>
           <div className="flex gap-1.5">
             <Button
               variant="outline"

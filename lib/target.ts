@@ -57,3 +57,47 @@ export function periodStats(days: DaySummary[], today: string): PeriodStats {
     avgSalesPerWorkDay: workDaysToDate > 0 ? Math.round(salesToDate / workDaysToDate) : 0,
   }
 }
+
+export type Streak = {
+  /** jumlah hari kerja berturut-turut yang target penjualannya tercapai */
+  days: number
+  /** target hari ini sudah tercapai (ikut dihitung di `days`) */
+  todayDone: boolean
+  /** streak mencapai batas data yang diambil, tampilkan sebagai "N+" */
+  capped: boolean
+}
+
+/**
+ * Hitung streak mundur dari `today`.
+ * - Hari libur (is_off) dilewati, tidak memutus streak.
+ * - Hari ini yang belum tercapai dilewati (masih berjalan).
+ * - Hari kerja yang tidak tercapai, atau hari sebelum tanggal mulai tracking, menghentikan hitungan.
+ * `days` boleh dalam urutan apa pun; idealnya mencakup rentang panjang sampai `today`.
+ */
+export function computeStreak(days: DaySummary[], today: string): Streak {
+  const sorted = days.filter((d) => d.day <= today).sort((a, b) => b.day.localeCompare(a.day))
+  let count = 0
+  let todayDone = false
+  let stopped = false
+  for (const d of sorted) {
+    if (d.is_off) continue
+    if (d.target <= 0) {
+      stopped = true // sebelum tanggal mulai tracking
+      break
+    }
+    const achieved = d.sales >= d.target
+    if (d.day === today) {
+      if (achieved) {
+        count++
+        todayDone = true
+      }
+      continue
+    }
+    if (!achieved) {
+      stopped = true
+      break
+    }
+    count++
+  }
+  return { days: count, todayDone, capped: !stopped && count > 0 }
+}
