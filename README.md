@@ -34,6 +34,7 @@ Stack: Next.js 16 (App Router) · shadcn/ui (Base UI) · lucide · Supabase (Pos
    1. `supabase/migrations/20261014000000_init.sql`
    2. `supabase/migrations/20261015000000_sales.sql`
    3. `supabase/migrations/20261016000000_timezone_wib.sql`
+   4. `supabase/migrations/20261017000000_search.sql`
 3. Isi data:
    - **Coba-coba**: jalankan `supabase/seed.example.sql` (data contoh fiktif).
    - **Produksi**: jalankan file seed privat Anda (lihat [Data privat](#data-privat)).

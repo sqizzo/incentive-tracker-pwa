@@ -231,3 +231,18 @@ export async function getQuickPicks(): Promise<QuickPicks> {
   if (error) throw error
   return computeQuickPicks(data as RecentEntry[])
 }
+
+export const SEARCH_LIMIT = 100
+
+/** Cari entri milik user di semua bulan (nota, customer/catatan, unit, item). Terbaru dulu. */
+export async function searchEntries(query: string): Promise<Entry[]> {
+  const supabase = await createClient()
+  const { data: ids, error } = await supabase.rpc("search_service_entries", { p_query: query, p_limit: SEARCH_LIMIT })
+  if (error) throw error
+  const order = (ids as string[]) ?? []
+  if (order.length === 0) return []
+  const { data, error: entriesError } = await supabase.from("service_entries").select(ENTRY_SELECT).in("id", order)
+  if (entriesError) throw entriesError
+  const rank = new Map(order.map((id, i) => [id, i]))
+  return sortItems(data as unknown as Entry[]).sort((a, b) => rank.get(a.id)! - rank.get(b.id)!)
+}
